@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Core ML / ONNX artifacts produced by tests
+*.mlmodel
+*.mlpackage
+tmp_test_model/
+
+# OS
+.DS_Store
+
+# Local model-zoo data and evaluation/export outputs
+tmp_test_onnx/
+tmp_test_output/

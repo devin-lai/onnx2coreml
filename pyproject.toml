@@ -1,0 +1,113 @@
+[build-system]
+requires = ["setuptools>=77.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onnx2coreml"
+version = "1.0.0"
+description = "Convert ONNX models to Apple Core ML — .mlpackage (ML Program) and .mlmodel (NeuralNetwork) — built on coremltools' MIL builder, with numerical-parity verification."
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [{ name = "devin-lai", email = "markauto75@gmail.com" }]
+keywords = [
+    "onnx", "core-ml", "coreml", "mlpackage", "mlmodel", "mlprogram",
+    "apple", "model-conversion", "machine-learning", "ios", "macos",
+    "neural-engine", "apple-silicon", "on-device", "inference", "coremltools",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "coremltools>=8",
+    # 1.16 carries modern opset support and the external-data path-traversal
+    # hardening; the converter loads caller-supplied models.
+    "onnx>=1.16",
+    "numpy",
+]
+
+[project.optional-dependencies]
+verify = ["onnxruntime"]
+test = [
+    "onnxruntime",
+    "pytest",
+    "pytest-xdist",
+]
+docs = ["sphinx>=7.0", "shibuya", "myst-parser"]
+dev = [
+    "build>=1.0",
+    "twine>=5.0",
+    "ruff>=0.12.0",
+    "pre-commit>=4.0",
+    "mypy",
+]
+
+[project.scripts]
+onnx2coreml = "onnx2coreml._cli:main"
+
+[project.urls]
+Homepage = "https://github.com/devin-lai/onnx2coreml"
+Repository = "https://github.com/devin-lai/onnx2coreml"
+Issues = "https://github.com/devin-lai/onnx2coreml/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["onnx2coreml*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+onnx2coreml = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = ["--tb=short", "-ra"]
+markers = [
+    "coreml: Exercises Core ML serialization/prediction (needs coremltools)",
+    "predict: Requires the macOS Core ML runtime for MLModel.predict",
+    "ops: core operator parity tests",
+    "integration: end-to-end model tests",
+    "slow: slow tests (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP", "SIM", "C4", "PERF", "RET", "RUF", "PT"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["onnx2coreml"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["onnx2coreml"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]

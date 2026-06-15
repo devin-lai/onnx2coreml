@@ -1,0 +1,18 @@
+# Commit gates mirroring AGENTS.md. Hooks call the project's own ruff and mypy
+# (installed via the `dev` extra), so tool versions live in one place: pyproject.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff check
+        entry: ruff check
+        args: [src, tests]
+        language: system
+        pass_filenames: false
+        types: [python]
+      - id: mypy
+        name: mypy
+        entry: mypy src
+        language: system
+        pass_filenames: false
+        types: [python]
