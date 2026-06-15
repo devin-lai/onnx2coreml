@@ -1,5 +1,6 @@
 # onnx2coreml
 
+[![PyPI](https://img.shields.io/pypi/v/onnx2coreml.svg)](https://pypi.org/project/onnx2coreml/)
 [![CI](https://github.com/devin-lai/onnx2coreml/actions/workflows/ci.yml/badge.svg)](https://github.com/devin-lai/onnx2coreml/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
@@ -19,8 +20,10 @@ numerical-parity verification against ONNX Runtime.
 ## Install
 
 ```bash
-uv pip install -e ".[dev,verify,test]"   # development
-# or, once published:  uv pip install onnx2coreml
+uv pip install onnx2coreml                # from PyPI
+
+# from a clone, for development:
+uv pip install -e ".[dev,verify,test]"
 ```
 
 Requires Python 3.11–3.13 and macOS for prediction/verification (model *building* works
