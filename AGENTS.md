@@ -6,8 +6,7 @@ consistent with the patterns below.
 ## What this is
 
 An ONNX → Core ML converter producing `.mlpackage` (ML Program / MIL) and `.mlmodel`
-(NeuralNetwork), built on top of coremltools' MIL builder. The design lives in
-`docs/specs/2026-06-15-onnx2coreml-design.md`.
+(NeuralNetwork), built on top of coremltools' MIL builder.
 
 ## Architecture (one pass through the pipeline)
 
