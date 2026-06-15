@@ -1,5 +1,10 @@
 # onnx2coreml
 
+[![CI](https://github.com/devin-lai/onnx2coreml/actions/workflows/ci.yml/badge.svg)](https://github.com/devin-lai/onnx2coreml/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 Convert ONNX models to Apple Core ML — **`.mlpackage`** (ML Program / MIL, primary) and
 **`.mlmodel`** (NeuralNetwork, secondary) — built on coremltools' MIL builder, with
 numerical-parity verification against ONNX Runtime.
