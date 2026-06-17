@@ -17,7 +17,7 @@ import json
 import sys
 
 from . import analyze, convert
-from .__version__ import __version__
+from .__version__ import __url__, __version__
 from ._coverage import supported_ops
 from ._io import save
 from ._target import Format
@@ -56,8 +56,13 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="onnx2coreml",
         description="Convert ONNX models to Apple Core ML (.mlpackage / .mlmodel).",
+        epilog=f"Project home and documentation: {__url__}",
     )
-    parser.add_argument("--version", action="version", version=f"onnx2coreml {__version__}")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"onnx2coreml {__version__}\n{__url__}",
+    )
     sub = parser.add_subparsers(dest="command")
 
     p_conv = sub.add_parser("convert", help="convert an ONNX model to Core ML")

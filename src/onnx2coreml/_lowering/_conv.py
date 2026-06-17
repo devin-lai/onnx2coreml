@@ -67,9 +67,12 @@ def _spatial_attr(node: onnx.NodeProto, name: str, n_spatial: int, default: int)
 
 def _conv(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     # ONNX Conv weight (C_out, C_in/groups, *K) and bias (C_out,) match MIL conv
-    # layout directly, so no transpose is needed. (A cardinality grouped conv fed
-    # into an activation is miscomputed by the Core ML *runtime*, not this
-    # lowering — see tests/test_ops_conv.py::test_grouped_conv_fused_activation.)
+    # layout directly, so no transpose is needed.
+    #
+    # Runtime caveat: grouped conv followed by an activation can be miscomputed by
+    # Core ML itself (see test_grouped_conv_fused_activation). Rewriting the graph
+    # into per-group convs or a block-diagonal conv still hits the same runtime
+    # fusion, while depthwise conv uses a different kernel.
     x, weight, bias = operands(ctx.values_map, node, [0, 1, 2])
     n_spatial = x.rank - 2
 

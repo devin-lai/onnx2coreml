@@ -230,6 +230,23 @@ def _depth_to_space(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     return mb.reshape(x=transposed, shape=[n, cb, h * bs, w * bs], name=node.output[0])
 
 
+def _space_to_depth(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
+    """ONNX SpaceToDepth -> MIL ``space_to_depth``."""
+    (x,) = operands(ctx.values_map, node, [0])
+    bs = int(get_attr(node, "blocksize"))
+    return mb.space_to_depth(x=x, block_size=bs, name=node.output[0])
+
+
+def _linear_target_hw(x: Any, scales: Any, sizes: Any) -> tuple[int, int]:
+    """Resolve the output ``(H, W)`` for a spatial Resize from scales or sizes."""
+    if sizes is not None:
+        return int(sizes[-2]), int(sizes[-1])
+    if scales is not None:
+        h, w = int(x.shape[-2]), int(x.shape[-1])
+        return round(h * float(scales[-2])), round(w * float(scales[-1]))
+    raise ValueError("Resize requires either 'scales' or 'sizes'")
+
+
 def _resize(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     """ONNX Resize / Upsample for the common 4D image cases.
 
@@ -244,14 +261,14 @@ def _resize(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     * ``mode='linear'`` -> ``upsample_bilinear`` (scales) or ``resize_bilinear``
       (sizes), with the coordinate-transformation mode mapped to an
       ``align_corners`` flag / ``sampling_mode``:
-        - ``half_pixel`` (ONNX default) -> ``align_corners=False`` /
-          ``UNALIGN_CORNERS``
-        - ``align_corners``             -> ``align_corners=True`` /
-          ``STRICT_ALIGN_CORNERS``
+        - ``half_pixel`` / ``pytorch_half_pixel`` (ONNX default) ->
+          ``align_corners=False`` / ``UNALIGN_CORNERS``
+        - ``align_corners`` -> ``align_corners=True`` / ``STRICT_ALIGN_CORNERS``
+        - ``asymmetric`` -> ``resize_bilinear`` with ``DEFAULT`` sampling.
 
-    Other modes (``cubic``; ``pytorch_half_pixel``; nearest with a non-floor
-    ``nearest_mode``; non-spatial scales) are not emitted — those test cases are
-    skipped rather than silently mismatched.
+    Other modes (``cubic``; nearest with a non-floor ``nearest_mode``; non-spatial
+    scales) are not emitted — those test cases are skipped rather than silently
+    mismatched.
     """
     (x,) = operands(ctx.values_map, node, [0])
     mode = get_attr(node, "mode", b"nearest")
@@ -284,6 +301,14 @@ def _resize(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
         raise ValueError("Resize requires either 'scales' or 'sizes'")
 
     if mode == "linear":
+        if coord == "asymmetric":
+            # upsample_bilinear has only align_corners, so asymmetric scales need
+            # resize_bilinear with an explicit output size.
+            th, tw = _linear_target_hw(x, scales, sizes)
+            return mb.resize_bilinear(
+                x=x, target_size_height=th, target_size_width=tw,
+                sampling_mode="DEFAULT", name=node.output[0],
+            )
         align = coord == "align_corners"
         if scales is not None:
             sh, sw = float(scales[-2]), float(scales[-1])
@@ -361,6 +386,7 @@ REGISTRY: dict[str, Lowering] = {
     "Cast": _cast,
     "Identity": _identity,
     "DepthToSpace": _depth_to_space,
+    "SpaceToDepth": _space_to_depth,
     "GridSample": _grid_sample,
     "Resize": _resize,
     "Upsample": _resize,

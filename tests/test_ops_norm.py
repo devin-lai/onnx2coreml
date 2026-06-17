@@ -51,6 +51,25 @@ def test_batch_normalization(fmt):
 
 
 @pytest.mark.parametrize("fmt", FORMATS)
+@pytest.mark.parametrize("shape", [(2, 3), (2, 3, 4)])
+def test_batch_normalization_low_rank(fmt, shape):
+    # MIL batch_norm starts at rank 3; ONNX also accepts the common (N, C) case.
+    rng = np.random.default_rng(0)
+    c = shape[1]
+    x = rng.standard_normal(shape).astype(np.float32)
+    scale = rng.standard_normal(c).astype(np.float32)
+    b = rng.standard_normal(c).astype(np.float32)
+    mean = rng.standard_normal(c).astype(np.float32)
+    var = np.abs(rng.standard_normal(c)).astype(np.float32) + 0.5
+    model = single_op_model(
+        "BatchNormalization",
+        {"X": x},
+        initializers={"scale": scale, "B": b, "mean": mean, "var": var},
+    )
+    assert_parity(model, {"X": x}, fmt=fmt)
+
+
+@pytest.mark.parametrize("fmt", FORMATS)
 def test_layer_normalization_last_axis(fmt):
     rng = np.random.default_rng(1)
     x = rng.standard_normal((2, 3, 8)).astype(np.float32)

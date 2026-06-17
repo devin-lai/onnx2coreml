@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use onnx2coreml in your work, please cite it using these metadata."
+title: "onnx2coreml: Convert ONNX models to Apple Core ML"
+abstract: >-
+  onnx2coreml converts ONNX models to Apple Core ML (.mlpackage / ML Program and
+  .mlmodel / NeuralNetwork), built on coremltools' MIL builder, with
+  numerical-parity verification against ONNX Runtime.
+type: software
+authors:
+  - given-names: Devin
+    family-names: Lai
+    alias: devin-lai
+repository-code: "https://github.com/devin-lai/onnx2coreml"
+url: "https://github.com/devin-lai/onnx2coreml"
+license: BSD-3-Clause
+keywords:
+  - onnx
+  - core-ml
+  - coreml
+  - mlpackage
+  - mlmodel
+  - model-conversion
+  - apple-silicon
+  - on-device-inference
+  - coremltools

@@ -58,7 +58,9 @@ onnx2coreml = "onnx2coreml._cli:main"
 [project.urls]
 Homepage = "https://github.com/devin-lai/onnx2coreml"
 Repository = "https://github.com/devin-lai/onnx2coreml"
+Documentation = "https://github.com/devin-lai/onnx2coreml#readme"
 Issues = "https://github.com/devin-lai/onnx2coreml/issues"
+Changelog = "https://github.com/devin-lai/onnx2coreml/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

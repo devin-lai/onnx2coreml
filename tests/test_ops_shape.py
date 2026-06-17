@@ -234,6 +234,48 @@ def test_resize_linear_align_corners_sizes(fmt):
 
 
 @pytest.mark.parametrize("fmt", FMTS)
+def test_resize_linear_asymmetric_scales(fmt):
+    # asymmetric maps to resize_bilinear's DEFAULT sampling mode.
+    x = {"X": np.arange(1 * 2 * 3 * 3, dtype=np.float32).reshape(1, 2, 3, 3)}
+    roi = np.array([], dtype=np.float32)
+    scales = np.array([1.0, 1.0, 2.0, 2.0], dtype=np.float32)
+    m = single_op_model(
+        "Resize",
+        x,
+        attrs={"mode": "linear", "coordinate_transformation_mode": "asymmetric"},
+        initializers={"roi": roi, "scales": scales},
+    )
+    assert_parity(m, x, fmt=fmt)
+
+
+@pytest.mark.parametrize("fmt", FMTS)
+def test_resize_linear_asymmetric_sizes(fmt):
+    x = {"X": np.arange(1 * 2 * 3 * 3, dtype=np.float32).reshape(1, 2, 3, 3)}
+    roi = np.array([], dtype=np.float32)
+    scales = np.array([], dtype=np.float32)
+    sizes = np.array([1, 2, 6, 6], dtype=np.int64)
+    m = single_op_model(
+        "Resize",
+        x,
+        attrs={"mode": "linear", "coordinate_transformation_mode": "asymmetric"},
+        initializers={"roi": roi, "scales": scales, "sizes": sizes},
+    )
+    assert_parity(m, x, fmt=fmt)
+
+
+@pytest.mark.parametrize("fmt", FMTS)
+@pytest.mark.parametrize("blocksize", [2, 3])
+def test_space_to_depth(fmt, blocksize):
+    # Inverse of DepthToSpace: (N, C, H, W) -> (N, C*bs^2, H/bs, W/bs).
+    bs = blocksize
+    x = {"X": np.arange(1 * 2 * (3 * bs) * (4 * bs), dtype=np.float32).reshape(
+        1, 2, 3 * bs, 4 * bs
+    ) * 0.1}
+    m = single_op_model("SpaceToDepth", x, attrs={"blocksize": bs})
+    assert_parity(m, x, fmt=fmt)
+
+
+@pytest.mark.parametrize("fmt", FMTS)
 def test_upsample_nearest_scales(fmt):
     # Deprecated opset-9 Upsample; scales path, nearest.
     x = {"X": np.arange(1 * 1 * 2 * 2, dtype=np.float32).reshape(1, 1, 2, 2)}

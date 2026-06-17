@@ -31,10 +31,23 @@ def _batch_norm(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     # ONNX inputs: X, scale, B, input_mean, input_var (all per-channel, axis=1).
     x, scale, b, mean, var = operands(ctx.values_map, node, [0, 1, 2, 3, 4])
     epsilon = get_attr(node, "epsilon", 1e-5)
-    return mb.batch_norm(
-        x=x, mean=mean, variance=var, gamma=scale, beta=b, epsilon=epsilon,
-        name=node.output[0],
+    rank = x.rank
+    if rank >= 3:
+        return mb.batch_norm(
+            x=x, mean=mean, variance=var, gamma=scale, beta=b, epsilon=epsilon,
+            name=node.output[0],
+        )
+    if rank != 2:
+        raise ValueError("BatchNormalization requires input rank >= 2")
+
+    # MIL batch_norm starts at rank 3. For ONNX's common (N, C) form, add one
+    # trailing singleton dimension and reshape back afterward.
+    orig_shape = [int(d) for d in x.shape]
+    expanded = mb.reshape(x=x, shape=[*orig_shape, 1])
+    normed = mb.batch_norm(
+        x=expanded, mean=mean, variance=var, gamma=scale, beta=b, epsilon=epsilon
     )
+    return mb.reshape(x=normed, shape=orig_shape, name=node.output[0])
 
 
 def _instance_norm(ctx: LoweringContext, node: onnx.NodeProto) -> Any:

@@ -11,10 +11,23 @@ conversion entry point. Format/spec evolution is absorbed here.
 
 from __future__ import annotations
 
+from .__version__ import __url__
 from ._mil import ct
 from ._target import Format
 
 _CONVERT_TO = {Format.MLPACKAGE: "mlprogram", Format.MLMODEL: "neuralnetwork"}
+
+# Standard Core ML metadata stamped on every converted model.
+_MODEL_DESCRIPTION = __url__
+_MODEL_AUTHOR = "devin-lai"
+_MODEL_LICENSE = __url__
+
+
+def _stamp_provenance(mlmodel) -> None:
+    """Write the onnx2coreml attribution into the model's Core ML metadata."""
+    mlmodel.short_description = _MODEL_DESCRIPTION
+    mlmodel.author = _MODEL_AUTHOR
+    mlmodel.license = _MODEL_LICENSE
 
 
 def program_to_mlmodel(
@@ -38,7 +51,9 @@ def program_to_mlmodel(
             kwargs["compute_precision"] = _compute_precision(precision, fp32_op_types)
     if compute_units is not None:
         kwargs["compute_units"] = compute_units
-    return ct.convert(prog, **kwargs)
+    mlmodel = ct.convert(prog, **kwargs)
+    _stamp_provenance(mlmodel)
+    return mlmodel
 
 
 def _compute_precision(precision, fp32_op_types):

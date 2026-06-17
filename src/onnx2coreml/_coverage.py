@@ -35,11 +35,19 @@ class CoverageReport:
 
 
 def analyze(model: onnx.ModelProto | str | Path | bytes) -> CoverageReport:
-    """Report supported/unsupported ops for a model (incl. subgraphs)."""
+    """Report supported/unsupported ops for a model (incl. subgraphs).
+
+    The same cleanup/fusion passes as conversion are run first, so folded nodes
+    do not appear as false unsupported-op hits.
+    """
     if not isinstance(model, onnx.ModelProto):
         from ._io import load
 
         model = load(model)
+
+    from . import _fusion, _passes
+
+    model = _fusion.run(_passes.run(model))
     report = CoverageReport()
     for i, node in enumerate(iter_graph_nodes(model.graph)):
         key = op_key(node)

@@ -40,6 +40,35 @@ def test_bad_format_raises_target_error():
         o2c.convert(model, format="onnx")
 
 
+@pytest.mark.parametrize("fmt", ["mlpackage", "mlmodel"])
+def test_provenance_metadata_stamped(fmt, tmp_path):
+    import coremltools as ct
+
+    from onnx2coreml._backend import (
+        _MODEL_AUTHOR,
+        _MODEL_DESCRIPTION,
+        _MODEL_LICENSE,
+    )
+
+    model = single_op_model(
+        "Add", {"a": np.zeros((2,), np.float32), "b": np.zeros((2,), np.float32)}
+    )
+    mlmodel = o2c.convert(model, format=fmt)
+
+    meta = mlmodel.get_spec().description.metadata
+    assert meta.author == _MODEL_AUTHOR
+    assert meta.license == _MODEL_LICENSE
+    assert meta.shortDescription == _MODEL_DESCRIPTION
+
+    ext = ".mlpackage" if fmt == "mlpackage" else ".mlmodel"
+    path = tmp_path / f"model{ext}"
+    mlmodel.save(str(path))
+    reloaded = ct.models.MLModel(str(path)).get_spec().description.metadata
+    assert reloaded.author == _MODEL_AUTHOR
+    assert reloaded.license == _MODEL_LICENSE
+    assert reloaded.shortDescription == _MODEL_DESCRIPTION
+
+
 def test_fp16_saturates_overflowing_constant():
     # A constant beyond fp16 range (FLT_MAX, as used for attention-mask fills)
     # becomes inf once cast to fp16; 0 * inf = NaN. Saturating the constant into

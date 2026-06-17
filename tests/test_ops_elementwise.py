@@ -40,6 +40,16 @@ def test_arithmetic(fmt, op, shapes):
 
 
 @pytest.mark.parametrize("fmt", ["mlpackage", "mlmodel"])
+@pytest.mark.parametrize("exp_shape", [(1,), ()])
+def test_pow_scalar_constant_exponent(fmt, exp_shape):
+    # The NeuralNetwork backend requires a scalar exponent for pow-by-constant.
+    x = _SEED.random((2, 3, 4)).astype(np.float32) + 0.5
+    exponent = np.array(2.0, dtype=np.float32).reshape(exp_shape)
+    model = single_op_model("Pow", {"x": x}, initializers={"exp": exponent})
+    assert_parity(model, {"x": x}, fmt=fmt)
+
+
+@pytest.mark.parametrize("fmt", ["mlpackage", "mlmodel"])
 @pytest.mark.parametrize("op", ["Sqrt", "Exp", "Log", "Reciprocal"])
 @pytest.mark.parametrize("shape", [(2, 3), (4, 1, 5)])
 def test_unary_positive(fmt, op, shape):

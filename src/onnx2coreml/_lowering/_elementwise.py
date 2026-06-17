@@ -105,13 +105,27 @@ def _isnan(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
     return mb.not_equal(x=x, y=x, name=node.output[0])
 
 
+def _pow(ctx: LoweringContext, node: onnx.NodeProto) -> Any:
+    """ONNX Pow -> MIL ``pow``.
+
+    The NeuralNetwork backend wants a scalar for constant exponents. A rank-1
+    single-value initializer is equivalent under ONNX broadcasting, so collapse it
+    before handing the op to MIL.
+    """
+    x, y = operands(ctx.values_map, node, [0, 1])
+    exponent = const_array(ctx, node, 1)
+    if exponent is not None and exponent.size == 1:
+        y = _np_dtype(x).type(exponent.reshape(()).item())
+    return mb.pow(x=x, y=y, name=node.output[0])
+
+
 REGISTRY: dict[str, Lowering] = {
     # Arithmetic (two-input, broadcasting).
     "Add": binary(mb.add),
     "Sub": binary(mb.sub),
     "Mul": binary(mb.mul),
     "Div": binary(mb.real_div),
-    "Pow": binary(mb.pow),
+    "Pow": _pow,
     # Unary math.
     "Sqrt": unary(mb.sqrt),
     "Exp": unary(mb.exp),
