@@ -6,6 +6,21 @@ All notable changes to onnx2coreml are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-06-17
+
+Support conversion for more models.
+
+### Added
+- SpaceToDepth lowering.
+- Flat-directory batch conversion and parity-check tool.
+- Project citation metadata and Core ML model provenance metadata.
+
+### Fixed
+- Pow with scalar constant exponents on the NeuralNetwork backend.
+- BatchNormalization for rank-2 `(N, C)` inputs.
+- Resize `linear` + `asymmetric` sampling.
+- Coverage reports now run after cleanup and fusion passes.
+
 ## [1.0.0] — 2026-06-15
 
 First stable release.

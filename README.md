@@ -64,7 +64,7 @@ onnx2coreml schema                      # version, supported op count, error cod
 
 All subcommands accept `--json`.
 
-## Supported operators (105 ops)
+## Supported operators (106 ops)
 
 | Family | Operators |
 |--------|-----------|
@@ -73,7 +73,7 @@ All subcommands accept `--json`.
 | Convolution / pooling | Conv, ConvTranspose, MaxPool, AveragePool, GlobalAveragePool, GlobalMaxPool |
 | Normalization | BatchNormalization, LayerNormalization, InstanceNormalization, GroupNormalization |
 | Linear | MatMul, Gemm, Inverse (`com.microsoft`) |
-| Shape / movement | Reshape, Transpose, Flatten, Squeeze, Unsqueeze, Concat, Split, Pad, Cast, Identity, DepthToSpace, GridSample, Resize, Upsample |
+| Shape / movement | Reshape, Transpose, Flatten, Squeeze, Unsqueeze, Concat, Split, Pad, Cast, Identity, DepthToSpace, SpaceToDepth, GridSample, Resize, Upsample |
 | Indexing / gather-scatter | Gather, GatherND, GatherElements, ScatterND, ScatterElements, NonZero, Slice, Expand, Tile, Shape, ConstantOfShape |
 | Reduction | ReduceMean, ReduceSum, ReduceMax, ReduceMin, ReduceProd, ReduceL1, ReduceL2, ReduceLogSum, ReduceLogSumExp, ReduceSumSquare, ArgMax, ArgMin, TopK |
 | Recurrent | LSTM |
@@ -92,7 +92,7 @@ coverage-gate → lower to MIL (mb.*) → coremltools backend → .mlpackage / .
 
 See `AGENTS.md` for the developer guide and architecture overview.
 
-## Known limitations (v1.0.0)
+## Known limitations (v1.1.0)
 
 - Fixed input shapes.
 - A full all-axes reduction with `keepdims=0` yields shape `(1,)` (Core ML has no rank-0

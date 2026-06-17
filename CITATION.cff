@@ -6,6 +6,8 @@ abstract: >-
   .mlmodel / NeuralNetwork), built on coremltools' MIL builder, with
   numerical-parity verification against ONNX Runtime.
 type: software
+version: "1.1.0"
+date-released: "2026-06-17"
 authors:
   - given-names: Devin
     family-names: Lai
