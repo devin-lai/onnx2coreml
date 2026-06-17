@@ -17,6 +17,10 @@ numerical-parity verification against ONNX Runtime.
 - **Verified, not assumed**: every operator has numerical-parity tests run against the live
   Core ML runtime on macOS.
 
+<p align="center">
+  <img src="docs/images/Principle.png" alt="onnx2coreml pipeline: ONNX is loaded and validated, run through preprocessing passes and attention fusion, gated for operator coverage, lowered to MIL, built by the coremltools backend into .mlpackage / .mlmodel, then numerically verified against ONNX Runtime." width="900">
+</p>
+
 ## Install
 
 ```bash
